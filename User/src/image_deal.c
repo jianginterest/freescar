@@ -9,7 +9,7 @@ uint8 Turn_Direction=0;
 
 
 /*************************最小行 最大行 最小列 最大列  *******/
-struct IMG img={1,2,40,40,  10,    55,     3,    76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+struct IMG img={1,2,40,40,  10,    50,     3,    76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   /**
  * @brief      定义存储接收图像的数组
  * @param  	None
@@ -176,19 +176,44 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
 
   void Scan_Img_Array(void){
 
-    //最前方出现黑行，数据采集错误 ，停车 Stop
-    if( (img.imgbuff[img.Row_Max][40]==0)&&(img.imgbuff[img.Row_Max][40+10]==0)&&(img.imgbuff[img.Row_Max][40-10]==0)){
-       motor_init();
+   /****最前方出现黑行，数据采集错误 ，停车 Stop ****/
+
+    if( (img.imgbuff[30][40]==0)   &&
+        (img.imgbuff[30][40+1]==0) &&
+        (img.imgbuff[30][40+2]==0) &&
+        (img.imgbuff[30][40+3]==0) &&
+        (img.imgbuff[30][40+4]==0) &&
+        (img.imgbuff[30][40-1]==0) &&
+        (img.imgbuff[30][40-2]==0) &&
+        (img.imgbuff[30][40-3]==0) &&
+        (img.imgbuff[30][40-4]==0)
+    ){ motor_init();
     }
 
-    img.Mid=40;             //重置起始扫描中点
-    img.Effective_Row=0;
+    /******************* 重置图像扫描数据  *******************/
+
+    img.Mid=40;                 //重置起始扫描中点
+    img.Effective_Row=0;        //重置赛道有效行
+    img.Left_Jump_Flag=0;
+    img.Right_Jump_Flag=0;
+
+    img.Left_Jump_Flag=0;
+    img.Right_Jump_Flag=0;
+
+    img.Ring_Flag=0;
+    img.Ring_Count=0;
+
+
+/******************* 重置图像扫描数据结束  *******************/
+
 
  for(img.row=img.Row_Max-1;img.row>=img.Row_Min;img.row--){
     //先对赛道扫描点赋初值，可判断赛道当前情况
         img.Left_Margin[img.row]=0;
         img.Road_Middle[img.row]=40;
         img.Right_Margin[img.row]=79;
+        img.Left_Jump_Count[img.row]=0;
+        img.Right_Jump_Count[img.row]=0;
 
         if((img.Mid>77)||(img.Mid<2)){
             break;  //计算点太远，会溢出，直接跳出循环说明扫描到了图像最前方
@@ -203,19 +228,24 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
        //         }
        //     }//右拐的时候
 
+     /***************************首次寻找边界******************************/
+      if(img.first==1)
+      {
    for(img.col=img.Mid; img.col>=img.col_Min;img.col--){
        if(Check_Margin(img.row,img.col)==img.Left_Jump){
            img.Left_Margin[img.row]=img.col;
            break;
              }
-         } //左测扫描结束
+         } //左边界扫描结束
     for(img.col=img.Mid; img.col<=img.col_Max; img.col++){
           if(Check_Margin(img.row,img.col) == img.Right_Jump){
              img.Right_Margin[img.row] = img.col;
               break;
                 }
+          } //右边界扫描结束
 
-          } //右侧扫描结束
+
+     }
 
           if(img.row<img.Row_Max-1){                    //计算边缘数据有效性
 
