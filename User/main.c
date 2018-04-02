@@ -30,8 +30,8 @@ void main(void)
      Scan_Img_Array();
      Calc_Track_Error();
      key_image();
-     Steering_Engine_Control(img.Error);
-
+    // Steering_Engine_Control(img.Error);
+     Tracking();
 
       //nrf_tx(nrf_tx_buff,10);
        //nrf_rx(nrf_rx_buff,10);

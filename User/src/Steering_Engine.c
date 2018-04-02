@@ -38,7 +38,7 @@ void Steering_Engine_Execute(uint32_t duty)
  * @param  	Error  赛道中线与当前图像中线的误差
  * @retval	None
  */
-void Steering_Engine_Control(int8 Error){
+void Steering_Engine_Control(int8 Error,int16 Flag){
     Steering_Engine.Current_Error=Error;
 
     Steering_Engine.Output=Steering_Engine.P * (Steering_Engine.Current_Error) +
@@ -48,7 +48,7 @@ void Steering_Engine_Control(int8 Error){
     Steering_Engine.Last_Last_Error= Steering_Engine.Last_Error;
     Steering_Engine.Last_Error     = Steering_Engine.Current_Error;
 
-    Steering_Engine.Output=Steering_Engine.Middle-Steering_Engine.Output;
+    Steering_Engine.Output=Steering_Engine.Middle-Steering_Engine.Output+Flag;
 
     Steering_Engine_Execute(Steering_Engine.Output);
 }

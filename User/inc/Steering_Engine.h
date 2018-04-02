@@ -4,7 +4,7 @@
 void steering_engine(void);
 
 void Steering_Engine_Execute(uint32_t duty);
-void Steering_Engine_Control(int8 Error);
+void Steering_Engine_Control(int8 Error,int16 Flag);
 
 struct PID{
 uint32 Middle;

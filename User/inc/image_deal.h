@@ -13,6 +13,7 @@ void Road_Data_Filter();
 void Scan_Img_Array(void);
 void Calc_Track_Error(void);
 void LCD_image_display();
+void Tracking(void);
 
 
 
@@ -26,10 +27,6 @@ struct IMG
    uint8 Row_Max;
    uint8 col_Min;
    uint8 col_Max;
-
-
-   uint8  Left_Last_Margin[70];
-   uint8  Right_Last_Margin[70];
 
 
    uint8 row;
@@ -57,9 +54,14 @@ struct IMG
     uint8  Ring_Delay;
     uint8  Ring_Clear;
 
-    uint8  first;
-    uint8 Left_Lost_Count ;
-    uint8 Right_Lost_Count;
+    uint8  Left_Lost_Count ;
+    uint8  Right_Lost_Count;
+
+    uint8  Left_Last_Margin;
+    uint8  Right_Last_Margin;
+    uint8  Right_Last_Last_Margin;
+    uint8  Left_Last_Last_Margin;
+
 };
 
 

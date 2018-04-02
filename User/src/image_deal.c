@@ -197,8 +197,6 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
     img.Left_Jump_Flag=0;
     img.Right_Jump_Flag=0;
 
-    img.Left_Jump_Flag=0;
-    img.Right_Jump_Flag=0;
 
     img.Ring_Flag=0;
     img.Ring_Count=0;
@@ -209,28 +207,20 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
 
  for(img.row=img.Row_Max-1;img.row>=img.Row_Min;img.row--){
     //先对赛道扫描点赋初值，可判断赛道当前情况
-        img.Left_Margin[img.row]=0;
+        img.Left_Margin[img.row]=1;
         img.Road_Middle[img.row]=40;
-        img.Right_Margin[img.row]=79;
+        img.Right_Margin[img.row]=78;
         img.Left_Jump_Count[img.row]=0;
         img.Right_Jump_Count[img.row]=0;
 
-        if((img.Mid>77)||(img.Mid<2)){
+        if((img.Mid>76)||(img.Mid<3)){
             break;  //计算点太远，会溢出，直接跳出循环说明扫描到了图像最前方
         }
                  //255为白
     if((img.imgbuff[img.row][img.Mid]==255)||(img.imgbuff[img.row][img.Mid+15]==255)){
-          img.Effective_Row++;    //有效行加一
-
-  //  if(img.imgbuff[img.row][img.Mid]==0){
-      //   if(img.imgbuff[img.row][img.Mid+15]==255){
-       //         img.Mid=img.Mid+15;
-       //         }
-       //     }//右拐的时候
 
      /***************************首次寻找边界******************************/
-      if(img.first==1)
-      {
+
    for(img.col=img.Mid; img.col>=img.col_Min;img.col--){
        if(Check_Margin(img.row,img.col)==img.Left_Jump){
            img.Left_Margin[img.row]=img.col;
@@ -245,39 +235,63 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
           } //右边界扫描结束
 
 
-     }
+          if(img.row<img.Row_Max-2){
 
-          if(img.row<img.Row_Max-1){                    //计算边缘数据有效性
+            if(img.Left_Last_Margin<img.Left_Margin[img.row]){
+                if(img.Left_Margin[img.row]-img.Left_Last_Margin>5){
+                    img.Left_Jump_Flag=1;
 
-                if( img.Left_Last_Margin[img.row+1]<img.Left_Margin[img.row]){
-                    img.Left_Last_Margin[img.row]=img.Left_Margin[img.row];
-                }else{
-                    if( (img.Left_Last_Margin[img.row+1]-img.Left_Margin[img.row])>2){
-                        img.Left_Margin[img.row]=img.Left_Last_Margin[img.row+1];
-                        img.Left_Last_Margin[img.row]=img.Left_Margin[img.row];
-                    }else{
-                        img.Left_Last_Margin[img.row]=img.Left_Margin[img.row];
-                    }
                 }
-
-                if( img.Right_Last_Margin[img.row+1]>img.Right_Margin[img.row]){
-                    img.Right_Last_Margin[img.row]=img.Right_Margin[img.row];
-                }else{
-                    if( (img.Right_Margin[img.row]-img.Right_Last_Margin[img.row+1])>2){
-                        img.Right_Margin[img.row]=img.Right_Last_Margin[img.row+1];
-                        img.Right_Last_Margin[img.row]=img.Right_Margin[img.row];
-                    }else{
-                        img.Right_Last_Margin[img.row]=img.Right_Margin[img.row];
-                    }
-                }
+                img.Left_Jump_Count[img.row]=img.Left_Margin[img.row]-img.Left_Last_Margin;     //左侧数据往内扩，但是出现了跳变  障碍，圆环
             }else{
-                img.Left_Last_Margin[img.row]=img.Left_Margin[img.row];
-                img.Right_Last_Margin[img.row]=img.Right_Margin[img.row];
+                if(img.Left_Last_Margin-img.Left_Margin[img.row]>3){
+                    img.Left_Lost_Count++;
+                }else {
+                    if(img.Left_Margin[img.row]==0){
+                        img.Left_Lost_Count++;
+                    }
+                }
+
+                img.Left_Margin[img.row]=img.Left_Last_Margin;
             }
-     //计算当前行赛道中值
+            img.Left_Last_Last_Margin=img.Left_Last_Margin;
+            img.Left_Last_Margin=img.Left_Margin[img.row];
+
+
+            if( img.Right_Last_Margin>img.Right_Margin[img.row]){
+
+                if(img.Right_Last_Margin - img.Right_Margin[img.row]>5){
+                    img.Right_Jump_Flag=1;
+                }
+                img.Right_Jump_Count[img.row]=img.Right_Last_Margin - img.Right_Margin[img.row];  //右侧数据往内扩，但是出现了跳变  障碍，圆环
+            }else{
+
+                if(img.Right_Margin[img.row]-img.Right_Last_Margin>3){
+                    img.Right_Lost_Count++;
+                }else{
+                    if(img.Right_Margin[img.row]==79){
+                         img.Right_Lost_Count++;
+                    }
+                }
+                img.Right_Margin[img.row]=img.Right_Last_Margin;
+            }
+            img.Right_Last_Last_Margin=img.Right_Last_Margin;
+            img.Right_Last_Margin=img.Right_Margin[img.row];
+
+        }else{  //第一次扫描记录历史数据
+            img.Left_Last_Last_Margin=img.Left_Last_Margin;
+            img.Left_Last_Margin=img.Left_Margin[img.row];
+
+            img.Right_Last_Last_Margin=img.Right_Last_Margin;
+            img.Right_Last_Margin=img.Right_Margin[img.row];
+        }
+
+       if( (img.Right_Margin[img.row]-img.Left_Margin[img.row])>5){
+                 //计算当前行赛道中值
             img.Road_Middle[img.row]=(uint8)((img.Right_Margin[img.row]+img.Left_Margin[img.row])/2);
             img.Mid = img.Road_Middle[img.row];// 前一行扫描起点为上一行中点
-
+            img.Effective_Row++;    //有效行加一
+         }
  }else{
           break; //结束处理
         }
@@ -335,7 +349,7 @@ void Calc_Track_Error(void){
         }
     }else{
          Road_Data_Filter();
-         img.Error=(int)(LSM.a*25+LSM.b-40);
+         img.Error=(int)(LSM.a*30+LSM.b-40);
     }
 
     if((img.Ring_Flag==0)&& (img.Ring_Delay==2)){
@@ -373,7 +387,15 @@ void Calc_Track_Error(void){
 
 
 }
+ void Tracking(void)
+ {  if( (img.Left_Jump_Flag==1)&&(img.Right_Jump_Flag==0)&&((img.Left_Lost_Count==0)||(img.Right_Lost_Count==0) ) ){
+        Steering_Engine_Control(img.Error,-350);
+    }else if((img.Left_Jump_Flag==0)&&(img.Right_Jump_Flag==1)&&((img.Left_Lost_Count==0)||(img.Right_Lost_Count==0))   ){
+        Steering_Engine_Control(img.Error,+150);
+    }else
+    {Steering_Engine_Control(img.Error,0);}
 
+ }
 
 
 
