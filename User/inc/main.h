@@ -11,6 +11,7 @@
 
 
 extern int16 Num_Pluse;
+extern int16 distance;
 void labview(void);
 
 #endif

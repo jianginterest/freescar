@@ -9,7 +9,7 @@ uint8 Turn_Direction=0;
 
 
 /*************************最小行 最大行 最小列 最大列  *******/
-struct IMG img={1,2,40,40,  10,    50,     3,    76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+struct IMG img={1,2,40,40,  10,    55,     3,    76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   /**
  * @brief      定义存储接收图像的数组
  * @param  	None
@@ -27,6 +27,26 @@ struct IMG img={1,2,40,40,  10,    50,     3,    76,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 
 
+ /**
+ * @brief   标准数组
+ * @param  	15~30
+ * @retval	None
+ */
+  uint8 Left_Margin_standard[60]=
+   {  3,3,3,3,3,  3,3,3,3,3,  3,3,3,3,3,
+
+
+   31,31,31,30,28,   26,23,21,19,17, 15,13,11,9,7,6,
+   4
+   };
+   uint8 Right_Margin_standard[60]=
+   { 76,76,76,76,76,  76,76,76,76,76,  76,76,76,76,76,
+
+
+     43,44,44,46,48,  50,53,56,58,61,  63,65,67,69,71,
+     73,76
+
+   };
 /**
  * @brief   声明最小二乘法所用结构体
  * @param  	None
@@ -57,6 +77,7 @@ void LCD_camera_init(void)
     size.W = LCD_W;
     LCD_rectangle((Site_t){2,107},(Size_t){ 124,1}, RED);
     LCD_str((Site_t){6,110},"speed ",WHITE,BLACK);
+
     LCD_str((Site_t){40,4},"marvelous! ",WHITE,BLACK);
     camera_init(img.img_bin_buff);
     /*配置中断服务函数   */
@@ -92,6 +113,11 @@ void LCD_image_display()
         {
           LCD_point(site,WHITE);
         }
+         if(img.imgbuff[site.y][site.x]==120)
+        {
+          LCD_point(site,YELLOW);
+        }
+
 
     }
   }
@@ -117,11 +143,12 @@ void key_image()
     //LCD_rectangle((Site_t){80,  img.Row_Min},(Size_t){ 40, 1}, WHITE);
    // LCD_rectangle((Site_t){80,  img.Row_Max},(Size_t){ 40, 1}, WHITE);
     LCD_rectangle((Site_t){40, 1}           ,(Size_t){ 1, 80}, WHITE);
-
-    for(img.Count=img.Row_Max-1;img.Count>=img.Row_Max-img.Effective_Row;img.Count--){
-            img.Road_Middle[img.Count]=(uint8)(LSM.a*LSM.X[img.Count]+LSM.b);
-        }  //中线重新计算
-
+    //if(img.rotary!=1)
+    //{
+  //  for(img.Count=img.Row_Max-1;img.Count>=img.Row_Max-img.Effective_Row;img.Count--){
+    //        img.Road_Middle[img.Count]=(uint8)(LSM.a*LSM.X[img.Count]+LSM.b);
+   //    }  //中线重新计算
+   // }
         LCD_image_display();
         for(img.Count=img.Row_Max-1; img.Count >=img.Row_Max-img.Effective_Row; img.Count--){
 
@@ -168,134 +195,356 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
     }
 }
 
+
+ /**
+ * @brief   环岛入
+ * @param  	None
+ * @retval	None
+ */
+ void rotary_into(void)
+ {
+
+
+
+
+ }
+
 /**
  * @brief       扫描赛道
  * @param  	None
  * @retval	None
  */
-
+ int i,j;
   void Scan_Img_Array(void){
 
    /****最前方出现黑行，数据采集错误 ，停车 Stop ****/
 
-    if( (img.imgbuff[30][40]==0)   &&
-        (img.imgbuff[30][40+1]==0) &&
-        (img.imgbuff[30][40+2]==0) &&
-        (img.imgbuff[30][40+3]==0) &&
-        (img.imgbuff[30][40+4]==0) &&
-        (img.imgbuff[30][40-1]==0) &&
-        (img.imgbuff[30][40-2]==0) &&
-        (img.imgbuff[30][40-3]==0) &&
-        (img.imgbuff[30][40-4]==0)
-    ){ motor_init();
+    if( (img.imgbuff[15][40]==0)   &&
+        (img.imgbuff[15][40+1]==0) &&
+        (img.imgbuff[15][40+2]==0) &&
+        (img.imgbuff[15][40+3]==0) &&
+        (img.imgbuff[15][40+4]==0) &&
+        (img.imgbuff[15][40-1]==0) &&
+        (img.imgbuff[15][40-2]==0) &&
+        (img.imgbuff[15][40-3]==0) &&
+        (img.imgbuff[15][40-4]==0)
+    ){
+      ftm_pwm_duty(FTM0, FTM_CH4,0 );
+      ftm_pwm_duty(FTM0, FTM_CH5,0 );
+      ftm_pwm_duty(FTM0, FTM_CH6,0 );
+      ftm_pwm_duty(FTM0, FTM_CH7,0 );
     }
 
     /******************* 重置图像扫描数据  *******************/
 
     img.Mid=40;                 //重置起始扫描中点
     img.Effective_Row=0;        //重置赛道有效行
-    img.Left_Jump_Flag=0;
-    img.Right_Jump_Flag=0;
 
+    img.left_line=0;
+    img.right_line=0;
 
-    img.Ring_Flag=0;
-    img.Ring_Count=0;
+    img.first=0;
+    img.number1=0;
+    img.number2=0;
 
 
 /******************* 重置图像扫描数据结束  *******************/
-
+        img.Left_Margin[img.Row_Max]=1;
+        img.Road_Middle[img.Row_Max]=40;
+        img.Right_Margin[img.Row_Max]=78;
+        img.x1=img.Row_Max;
 
  for(img.row=img.Row_Max-1;img.row>=img.Row_Min;img.row--){
     //先对赛道扫描点赋初值，可判断赛道当前情况
-        img.Left_Margin[img.row]=1;
-        img.Road_Middle[img.row]=40;
-        img.Right_Margin[img.row]=78;
-        img.Left_Jump_Count[img.row]=0;
-        img.Right_Jump_Count[img.row]=0;
 
-        if((img.Mid>76)||(img.Mid<3)){
-            break;  //计算点太远，会溢出，直接跳出循环说明扫描到了图像最前方
-        }
+        img.Left_Margin[img.row]=img.Left_Margin[img.row+1];
+        img.Road_Middle[img.row]=img.Road_Middle[img.row+1];
+        img.Right_Margin[img.row]=img.Right_Margin[img.row+1];
+         img.left_flag[img.row]=0;
+        img.right_flag[img.row]=0;
+
+
+
                  //255为白
     if((img.imgbuff[img.row][img.Mid]==255)||(img.imgbuff[img.row][img.Mid+15]==255)){
 
      /***************************首次寻找边界******************************/
+   if(img.first==0)
+   {
 
    for(img.col=img.Mid; img.col>=img.col_Min;img.col--){
        if(Check_Margin(img.row,img.col)==img.Left_Jump){
            img.Left_Margin[img.row]=img.col;
+            img.left_flag[img.row]=1;
            break;
              }
+
+
          } //左边界扫描结束
     for(img.col=img.Mid; img.col<=img.col_Max; img.col++){
           if(Check_Margin(img.row,img.col) == img.Right_Jump){
              img.Right_Margin[img.row] = img.col;
+              img.right_flag[img.row]=3;
+              break;
+                }
+          } //右边界扫描结束
+   if((img.right_flag[img.row]+img.left_flag[img.row])>0)
+   {
+   img.first=1;
+   }
+   }else
+   {
+  for(img.col=img.Left_Margin[img.row+1]; img.col<img.Right_Margin[img.row+1];img.col++){
+       if(Check_Margin(img.row,img.col)==img.Left_Jump){
+           img.Left_Margin[img.row]=img.col;
+            img.left_flag[img.row]=1;
+           break;
+             }
+
+
+         } //左边界扫描结束
+    for(img.col=img.Right_Margin[img.row+1]; img.col>img.Left_Margin[img.row+1]; img.col--){
+          if(Check_Margin(img.row,img.col) == img.Right_Jump){
+             img.Right_Margin[img.row] = img.col;
+              img.right_flag[img.row]=3;
               break;
                 }
           } //右边界扫描结束
 
 
-          if(img.row<img.Row_Max-2){
-
-            if(img.Left_Last_Margin<img.Left_Margin[img.row]){
-                if(img.Left_Margin[img.row]-img.Left_Last_Margin>5){
-                    img.Left_Jump_Flag=1;
-
-                }
-                img.Left_Jump_Count[img.row]=img.Left_Margin[img.row]-img.Left_Last_Margin;     //左侧数据往内扩，但是出现了跳变  障碍，圆环
-            }else{
-                if(img.Left_Last_Margin-img.Left_Margin[img.row]>3){
-                    img.Left_Lost_Count++;
-                }else {
-                    if(img.Left_Margin[img.row]==0){
-                        img.Left_Lost_Count++;
-                    }
-                }
-
-                img.Left_Margin[img.row]=img.Left_Last_Margin;
-            }
-            img.Left_Last_Last_Margin=img.Left_Last_Margin;
-            img.Left_Last_Margin=img.Left_Margin[img.row];
 
 
-            if( img.Right_Last_Margin>img.Right_Margin[img.row]){
+   }
 
-                if(img.Right_Last_Margin - img.Right_Margin[img.row]>5){
-                    img.Right_Jump_Flag=1;
-                }
-                img.Right_Jump_Count[img.row]=img.Right_Last_Margin - img.Right_Margin[img.row];  //右侧数据往内扩，但是出现了跳变  障碍，圆环
-            }else{
+     switch (img.left_flag[img.row]+img.right_flag[img.row])
+     {
+          case 0://左右都没找到
+            break;
+          case 1:       //左找到
 
-                if(img.Right_Margin[img.row]-img.Right_Last_Margin>3){
-                    img.Right_Lost_Count++;
-                }else{
-                    if(img.Right_Margin[img.row]==79){
-                         img.Right_Lost_Count++;
-                    }
-                }
-                img.Right_Margin[img.row]=img.Right_Last_Margin;
-            }
-            img.Right_Last_Last_Margin=img.Right_Last_Margin;
-            img.Right_Last_Margin=img.Right_Margin[img.row];
+            //  if((img.row>15)&&(img.row<30))
+             //img.left_line++;
 
-        }else{  //第一次扫描记录历史数据
-            img.Left_Last_Last_Margin=img.Left_Last_Margin;
-            img.Left_Last_Margin=img.Left_Margin[img.row];
+           break;
+          case 3:           //右找到
+             //if((img.row>15)&&(img.row<30))
+            //img.right_line++;
 
-            img.Right_Last_Last_Margin=img.Right_Last_Margin;
-            img.Right_Last_Margin=img.Right_Margin[img.row];
-        }
+          break;
+          case 4:                //都找到
 
-       if( (img.Right_Margin[img.row]-img.Left_Margin[img.row])>5){
+
+          break;
+
+     }
+
+
+       if( (img.Right_Margin[img.row]-img.Left_Margin[img.row])>0){
                  //计算当前行赛道中值
             img.Road_Middle[img.row]=(uint8)((img.Right_Margin[img.row]+img.Left_Margin[img.row])/2);
             img.Mid = img.Road_Middle[img.row];// 前一行扫描起点为上一行中点
             img.Effective_Row++;    //有效行加一
          }
+
+   if((img.Mid>60)||(img.Mid<20)){
+     if(img.row>28) img.Road_Middle[28]  =  img.Mid;
+            break;  //计算点太远，会溢出，直接跳出循环说明扫描到了图像最前方
+        }
+
  }else{
           break; //结束处理
         }
+
    }
+
+ //----------------------左环岛------------------------//
+ for(img.row=img.Row_Max-1;img.row>img.Row_Min;img.row--)
+ {
+  if((img.Left_Margin[img.row]==3)||(img.Left_Margin[img.row]==1))
+  {continue;}
+  else
+  {
+    for(i=img.row;i>img.row-8;i--)
+  {
+    for(j=0;j<img.Left_Margin[i];j++)
+  {
+     if(img.imgbuff[i][j]==0)
+     {
+       img.imgbuff[i][j]=120;
+       img.number1++;
+     }
+
+  }
+  }
+
+  if((img.number1<40)&&( img.number1!=0))
+  {
+
+  for(img.row=0;img.row<img.Row_Max;img.row++)
+  {
+    if((img.imgbuff[img.row][0]==120)&&(img.imgbuff[img.row][1]==120))
+    {
+
+     for(i=img.row;i>img.row-8;i--)
+     {
+       for(img.col=img.Left_Margin[img.row+1]; img.col<img.Right_Margin[img.row+1];img.col++)
+       {
+       if(img.left_flag[img.row]==1)
+       {     break; }
+        else if (img.right_flag[img.row]==3)
+       {  img.number2++;}
+       else
+       {  break; }
+
+       }
+
+     }
+     break;
+    }
+
+  }
+
+  }
+
+   if(img.number2>4)
+   { img.number2=0;
+   img.number1=0;
+
+
+
+      gpio_init(PTC14,GPO,0);    //蓝色 0
+          for(img.row=1;img.row<img.Row_Max;img.row++)
+          { if( img.right_flag[img.row]==3)
+          {
+            img.right_line=img.row;
+            break;                 }
+
+          }
+            for(img.row=img.right_line;img.row<30;img.row++)
+            {    if(img.right_flag[img.row]==3)
+            { img.R++;
+            }else
+            {break;}
+
+
+            }
+             for(img.row=img.right_line;img.row<30;img.row++)
+             {
+             if(img.left_flag[img.row]==1)
+            {img.L++;}
+            else
+            {break;}
+             }
+
+
+         if((img.R-img.L)>6)
+         {
+
+           gpio_init(PTC15,GPO,0);       //绿色0
+            img.rotary=3;
+             distance=0;
+
+         }
+
+
+
+
+    // }
+
+   }
+   break;
+  }
+
+ }
+
+
+
+  /**************************环岛入**********************/
+ /*
+       if(img.rotary==2)  //环岛在右
+       { for(img.row=img.Row_Max;img.row>img.Row_Min;img.row--)
+         { if((img.Right_Margin[img.row]!=78)&&(img.Right_Margin[img.row-1]<img.Right_Margin[img.row]))
+             {
+               img.x1=img.row+1;
+               img.y1=78;
+               img.x2=img.Row_Max;
+               img.y2=img.col_Min;
+               img.k=(img.y2-img.y1)/(img.x2-img.x1);
+               img.b=img.y2-(img.k*img.x2);
+               break;
+              }
+         }
+         for(img.row=img.x1;img.row>img.Row_Min;img.row--)
+         {
+          img.Right_Margin[img.row]=78;
+          img.Left_Margin[img.row]=78;
+         }
+         for(img.row=img.Row_Max;img.row>img.x1;img.row--)
+         {
+         img.Left_Margin[img.row]=(int)((img.k*img.row)+img.b);
+         img.Road_Middle[img.row]=(uint8)((img.Right_Margin[img.row]+img.Left_Margin[img.row])/2);
+         img.Mid = img.Road_Middle[img.row];
+         }
+
+
+
+       }else     */
+
+
+         if((img.rotary==3)&&(distance>3500))  //(3730)环岛在左(0在上)
+       {
+           gpio_init(PTC14,GPO,1);    //蓝色 0
+           img.Error=-18;
+           distance=0;
+
+
+          /*
+         for(img.row=10;img.row<img.Row_Max;img.row++)
+         { if((img.left_flag[img.row]==1)&&(img.left_flag[img.row+1]!=1))
+             {
+               if(img.row>img.x1)
+               {     }else
+               {
+               img.x1=img.row+1;
+               }
+                img.y1=1;
+               for(img.row=40;img.row>img.x1;img.row--)
+               {
+                  if((img.Right_Margin[img.row]!=78)&&(img.Right_Margin[img.row-1]<img.Right_Margin[img.row]))
+                  {
+               img.x2=img.row+1;
+               img.y2=78;
+               break;
+                  }
+
+               }
+               img.k=(img.y2-img.y1)/(img.x2-img.x1);
+               img.b=img.y2-(img.k*img.x2);
+               break;
+              }
+
+         }
+         for(img.row=img.x1;img.row>img.Row_Min;img.row--)
+         {
+          img.Right_Margin[img.row]=1;
+           img.Left_Margin[img.row]=1;
+            img.Road_Middle[img.row]=1;
+         }
+
+         for(img.row=img.x2;img.row>img.x1;img.row--)
+         {
+         img.Right_Margin[img.row]=(int)((img.k*img.row)+img.b);
+         img.Road_Middle[img.row]=(uint8)((img.Right_Margin[img.row]+img.Left_Margin[img.row])/2);
+         img.Mid = img.Road_Middle[img.row];
+         }
+           */
+
+       }
+
+   /**********************************************************/
+
+
+
   }
  /**
  * @brief   赛道数据滤波，最小二乘法
@@ -334,68 +583,29 @@ void Road_Data_Filter(){
  * @param  	None
  * @retval	None
  */
+uint8 flag;
 void Calc_Track_Error(void){
+        //if(img.rotary!=1)
+        //{
+      //  Road_Data_Filter();
+      //  img.Error=(int)(LSM.a*25+LSM.b-40);
+       // }else
+        //{
+  if((img.rotary==3)&&(distance<1300))
+  {
 
-    if(img.Ring_Delay>=3){
-       img.Ring_Delay--;
-    }
+  }else
+  {
+    img.Error= img.Road_Middle[28] -39;     }
+        //n 6}
 
-    if(img.Ring_Flag==1){
-        img.Ring_Delay=14;
-        if(Turn_Direction==1){
-            img.Error=-30;
-        }else{
-             img.Error=30;
-        }
-    }else{
-         Road_Data_Filter();
-         img.Error=(int)(LSM.a*30+LSM.b-40);
-    }
-
-    if((img.Ring_Flag==0)&& (img.Ring_Delay==2)){
-
-        if((img.Left_Lost_Count>13)&&(Turn_Direction==1)  ){
-            img.Ring_Clear=1;
-            img.Ring_Delay=0;
-        }
-
-        if((img.Right_Lost_Count>13)&&(Turn_Direction==2)  ){
-            img.Ring_Clear=2;
-            img.Ring_Delay=0;
-        }
-    }
+          /*********************环岛*********************/
 
 
-
-
-    if(img.Ring_Flag==0){
-
-        if(img.Ring_Clear==1){
-            if(img.Right_Lost_Count<5){
-                img.Ring_Clear=0;
-            }
-            img.Error=-30;
-        }
-
-        if(img.Ring_Clear==2){
-            if(img.Left_Lost_Count<5){
-                img.Ring_Clear=0;
-            }
-            img.Error=30;
-        }
-    }
 
 
 }
- void Tracking(void)
- {  if( (img.Left_Jump_Flag==1)&&(img.Right_Jump_Flag==0)&&((img.Left_Lost_Count==0)||(img.Right_Lost_Count==0) ) ){
-        Steering_Engine_Control(img.Error,-350);
-    }else if((img.Left_Jump_Flag==0)&&(img.Right_Jump_Flag==1)&&((img.Left_Lost_Count==0)||(img.Right_Lost_Count==0))   ){
-        Steering_Engine_Control(img.Error,+150);
-    }else
-    {Steering_Engine_Control(img.Error,0);}
 
- }
 
 
 

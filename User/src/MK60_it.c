@@ -76,11 +76,15 @@ void uart5_Intertupt(void)
  * @retval	None
  */
 int16 Num_Pluse;
+int16 distance;
 void PIT0_IRQHandler(void)
 {
     Num_Pluse = ftm_quad_get(FTM2);          //获取FTM 正交解码 的脉冲数(负数表示反方向)
     ftm_quad_clean(FTM2);
-
+    if(img.rotary!=0)
+    {
+     distance+=abs(Num_Pluse);
+    }
     Motor_PID();
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }

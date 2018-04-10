@@ -40,27 +40,30 @@ struct IMG
    int16 Error;
    uint8 Count;
    uint8 Road_Middle[70];
-   uint8  Effective_Row;
+   uint8 Effective_Row;
+
+   uint8  rotary;      //是否扫到环岛标志位
+   uint8  first;     //第一次扫描标志位
+   uint8  left_flag[60];      //左侧找到边界标志位
+   uint8  right_flag[60];      //右侧找到边界标志位
+
+   uint8  right_line;           //右侧丢线个数
+   uint8  left_line;            //左侧丢线个数
 
 
-    uint8  Left_Jump_Count[70];
-    uint8  Right_Jump_Count[70];
+   int8 x1;
+   int8 y1;
+   int8 x2;
+   int8 y2;
+   float k;
+   float b;
+   uint8 number1;
+   uint8 number2;
+   uint8 number3;
+   uint8 number4;
+   int16 L;
+   int16 R;
 
-    uint8  Left_Jump_Flag;
-    uint8  Right_Jump_Flag;
-
-    uint8  Ring_Count;
-    uint8  Ring_Flag;
-    uint8  Ring_Delay;
-    uint8  Ring_Clear;
-
-    uint8  Left_Lost_Count ;
-    uint8  Right_Lost_Count;
-
-    uint8  Left_Last_Margin;
-    uint8  Right_Last_Margin;
-    uint8  Right_Last_Last_Margin;
-    uint8  Left_Last_Last_Margin;
 
 };
 

@@ -6,7 +6,6 @@ uint8 nrf_rx_buff[32]={0};
 
 /***************虚拟示波器需要的参数*************/
 int di=10000;
-int i,j;
 uint8_t cmdf[3] = {2,CMD_IMG, ~CMD_IMG};
 uint8_t cmdr[3] = {2,~CMD_IMG, CMD_IMG};
 /***********************************************/
@@ -30,13 +29,12 @@ void main(void)
      Scan_Img_Array();
      Calc_Track_Error();
      key_image();
-    // Steering_Engine_Control(img.Error);
-     Tracking();
+     Steering_Engine_Control(img.Error);
 
-      //nrf_tx(nrf_tx_buff,10);
-       //nrf_rx(nrf_rx_buff,10);
-       //nrf_Change_Motorpid();
-      //labview(); //虚拟示波器，看PID
+     //Tracking();
+      // nrf_rx(nrf_rx_buff,5);
+        //nrf_measure_Angle();
+     // labview(); //虚拟示波器，看PID
 
     }
 }
@@ -65,7 +63,7 @@ void labview(void)
   while(nrf_tx_state() == NRF_TXING);
 
   /*************虚拟示波器（看PID）************/
-  nrf_tx_buff[1]=(uint8)abs(10*Motor_Left.Pulse_Count);
+  nrf_tx_buff[1]=(uint8)fabs(10*Motor_Left.Pulse_Count);
   nrf_tx_buff[0]=2;
   nrf_tx(nrf_tx_buff,2);
   /******************************************/

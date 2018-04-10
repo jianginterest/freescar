@@ -24,17 +24,38 @@ void nrf_config(void)
  */
 void nrf_measure_Angle(void)
 {
- if(nrf_rx_buff[1]=='a')
+ if(nrf_rx_buff[1]=='1')
  {
- Steering_Engine.Middle+=50;
- ftm_pwm_duty(FTM1,FTM_CH1, Steering_Engine.Middle);
+ Steering_Engine.P+=1;
+ nrf_tx_buff[2] = Steering_Engine.P;
+ nrf_tx(nrf_tx_buff,10);
  nrf_rx_buff[1]=0;
  }
-  if(nrf_rx_buff[1]=='b')
+  if(nrf_rx_buff[1]=='2')
+  {    if(Steering_Engine.P>0)
   {
- Steering_Engine.Middle-=50;
- ftm_pwm_duty(FTM1,FTM_CH1, Steering_Engine.Middle);
-  nrf_rx_buff[1]=0;
+ Steering_Engine.P-=1;
+  }
+  nrf_tx_buff[2] = Steering_Engine.P;
+ nrf_tx(nrf_tx_buff,10);
+ nrf_rx_buff[1]=0;
+  }
+  if(nrf_rx_buff[1]=='3')
+  {
+ Steering_Engine.D+=1;
+ nrf_tx_buff[2] = Steering_Engine.D;
+ nrf_tx(nrf_tx_buff,10);
+ nrf_rx_buff[1]=0;
+  }
+  if(nrf_rx_buff[1]=='4')
+  {
+    if(Steering_Engine.D>0)
+    {
+ Steering_Engine.D-=1;
+    }
+    nrf_tx_buff[2] = Steering_Engine.D;
+ nrf_tx(nrf_tx_buff,10);
+ nrf_rx_buff[1]=0;
   }
 }
  /**
@@ -64,6 +85,7 @@ void nrf_test(void)
    Motor_Left. P=nrf_rx_buff[1];
     Motor_Left. I=nrf_rx_buff[2];
      Motor_Left. D=nrf_rx_buff[3];
+
 
 
 

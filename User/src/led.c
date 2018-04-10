@@ -8,6 +8,6 @@
 void led_test(void)
 {  LED_init(LED0);
    LED_init(LED1);
-   gpio_init(PTC14,GPO,0);
-   gpio_init(PTC15,GPO,1);
+   gpio_init(PTC14,GPO,0);    //ю╤и╚ 0
+   gpio_init(PTC15,GPO,0);       //бли╚0
 }

@@ -1,11 +1,13 @@
 #include <include.h>
 
 /********************************************** P   I   D*****/
-struct PID  Steering_Engine={13500,15300,11500, 84, 0, 5,  0};
+struct PID  Steering_Engine={13500,15000,12000, 86, 0, 8,  0};
 
 /**
- * @brief    舵机打角初始化
+ * @brief    舵机打角初始化         13500 15300 11500
  *           已设置FTM1模块为占空比基数100000 在100hz下 15300为就舵机中值
+16   --86 8
+15----84 7
  *           50hz 情况下  中值 0   最大值 0   最小值
  *           100hz情况下
  * @param    None
@@ -26,9 +28,11 @@ void Steering_Engine_Execute(uint32_t duty)
   { duty=Steering_Engine.Duty_Max ; }
   else if (duty<Steering_Engine.Duty_Min)
   {   duty=Steering_Engine.Duty_Min;
-  }else
-  {  ftm_pwm_duty(FTM1,FTM_CH1,duty);
   }
+
+
+    ftm_pwm_duty(FTM1,FTM_CH1,duty);
+
 }
 
 
@@ -38,7 +42,8 @@ void Steering_Engine_Execute(uint32_t duty)
  * @param  	Error  赛道中线与当前图像中线的误差
  * @retval	None
  */
-void Steering_Engine_Control(int8 Error,int16 Flag){
+void Steering_Engine_Control(int16 Error){
+
     Steering_Engine.Current_Error=Error;
 
     Steering_Engine.Output=Steering_Engine.P * (Steering_Engine.Current_Error) +
@@ -48,7 +53,7 @@ void Steering_Engine_Control(int8 Error,int16 Flag){
     Steering_Engine.Last_Last_Error= Steering_Engine.Last_Error;
     Steering_Engine.Last_Error     = Steering_Engine.Current_Error;
 
-    Steering_Engine.Output=Steering_Engine.Middle-Steering_Engine.Output+Flag;
+    Steering_Engine.Output=Steering_Engine.Middle-Steering_Engine.Output;
 
     Steering_Engine_Execute(Steering_Engine.Output);
 }

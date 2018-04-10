@@ -22,8 +22,8 @@ uint8  Radius_1=0;
  */
 struct Motor_PID
 /***********   P        I        D         ***********************************/
- Motor_Left ={60,      7,     80,   	         0,  15,0,0,0,0,0},  //5的意思为每秒5转
- Motor_Right={60,      7,     80,   	         0,  15,0,0,0,0,0};
+ Motor_Left ={60,      7,     80,   	         0,  8,0,0,0,0,0},  //5的意思为每秒5转
+ Motor_Right={60,      7,     80,   	         0,  8,0,0,0,0,0};
 
 
  /**
@@ -113,8 +113,9 @@ void motor_duty(int32_t MotorL,int32_t MotorR)
  * @param      differ有范围：（3650*（1.8~2.5）/10）
  *           （1.8~2.5）的意思是转弯的时候内切和外切内外轮距离之比的范围
  * @retval     angle为偏差（舵机打角与其中值的偏差）
+大 左偏
  */
-uint16  differ=730;
+uint16  differ=600;
 void Motor_Differential(void)
 {
  int32 angle=Steering_Engine.Output-Steering_Engine.Middle;
