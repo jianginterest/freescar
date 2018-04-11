@@ -13,7 +13,7 @@ uint8_t cmdr[3] = {2,~CMD_IMG, CMD_IMG};
 void main(void)
 {
     all_init();
-   // motor_duty(0,250,0,270);
+   motor_duty(260,280);
     /*使用虚拟示波器时定义*/
     //temp[0]=0;
     //nrf_tx_buff[0]=1;

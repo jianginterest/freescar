@@ -85,7 +85,7 @@ void PIT0_IRQHandler(void)
     {
      distance+=abs(Num_Pluse);
     }
-    Motor_PID();
+   // Motor_PID();
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 

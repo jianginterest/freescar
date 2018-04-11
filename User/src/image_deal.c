@@ -117,6 +117,10 @@ void LCD_image_display()
         {
           LCD_point(site,YELLOW);
         }
+        if(img.imgbuff[site.y][site.x]==140)
+        {
+          LCD_point(site,GREEN);
+        }
 
 
     }
@@ -196,19 +200,6 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
 }
 
 
- /**
- * @brief   环岛入
- * @param  	None
- * @retval	None
- */
- void rotary_into(void)
- {
-
-
-
-
- }
-
 /**
  * @brief       扫描赛道
  * @param  	None
@@ -219,20 +210,20 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
 
    /****最前方出现黑行，数据采集错误 ，停车 Stop ****/
 
-    if( (img.imgbuff[15][40]==0)   &&
-        (img.imgbuff[15][40+1]==0) &&
-        (img.imgbuff[15][40+2]==0) &&
-        (img.imgbuff[15][40+3]==0) &&
-        (img.imgbuff[15][40+4]==0) &&
-        (img.imgbuff[15][40-1]==0) &&
-        (img.imgbuff[15][40-2]==0) &&
-        (img.imgbuff[15][40-3]==0) &&
-        (img.imgbuff[15][40-4]==0)
+    if( (img.imgbuff[50][40]==0)   &&
+        (img.imgbuff[50][40+1]==0) &&
+        (img.imgbuff[50][40+2]==0) &&
+        (img.imgbuff[50][40+3]==0) &&
+        (img.imgbuff[50][40+4]==0) &&
+        (img.imgbuff[50][40-1]==0) &&
+        (img.imgbuff[50][40-2]==0) &&
+        (img.imgbuff[50][40-3]==0) &&
+        (img.imgbuff[50][40-4]==0)
     ){
-      ftm_pwm_duty(FTM0, FTM_CH4,0 );
-      ftm_pwm_duty(FTM0, FTM_CH5,0 );
-      ftm_pwm_duty(FTM0, FTM_CH6,0 );
-      ftm_pwm_duty(FTM0, FTM_CH7,0 );
+     // ftm_pwm_duty(FTM0, FTM_CH4,0 );
+     // ftm_pwm_duty(FTM0, FTM_CH5,0 );
+     // ftm_pwm_duty(FTM0, FTM_CH6,0 );
+      //ftm_pwm_duty(FTM0, FTM_CH7,0 );
     }
 
     /******************* 重置图像扫描数据  *******************/
@@ -246,6 +237,10 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
     img.first=0;
     img.number1=0;
     img.number2=0;
+    img.number3=0;
+    img.number4=0;
+    img.R=0;
+    img.L=0;
 
 
 /******************* 重置图像扫描数据结束  *******************/
@@ -311,9 +306,6 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
                 }
           } //右边界扫描结束
 
-
-
-
    }
 
      switch (img.left_flag[img.row]+img.right_flag[img.row])
@@ -322,17 +314,11 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
             break;
           case 1:       //左找到
 
-            //  if((img.row>15)&&(img.row<30))
-             //img.left_line++;
-
            break;
           case 3:           //右找到
-             //if((img.row>15)&&(img.row<30))
-            //img.right_line++;
 
           break;
           case 4:                //都找到
-
 
           break;
 
@@ -356,8 +342,11 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
         }
 
    }
+ //----------------------------------------------------------------//
+ //----------------------------左环岛-----------------------------//
 
- //----------------------左环岛------------------------//
+ if(img.rotary==0)
+ {
  for(img.row=img.Row_Max-1;img.row>img.Row_Min;img.row--)
  {
   if((img.Left_Margin[img.row]==3)||(img.Left_Margin[img.row]==1))
@@ -376,8 +365,7 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
 
   }
   }
-
-  if((img.number1<40)&&( img.number1!=0))
+  if((img.number1<50)&&( img.number1!=0))
   {
 
   for(img.row=0;img.row<img.Row_Max;img.row++)
@@ -387,76 +375,57 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
 
      for(i=img.row;i>img.row-8;i--)
      {
-       for(img.col=img.Left_Margin[img.row+1]; img.col<img.Right_Margin[img.row+1];img.col++)
-       {
+
        if(img.left_flag[img.row]==1)
-       {     break; }
+       {     continue; }
         else if (img.right_flag[img.row]==3)
-       {  img.number2++;}
-       else
-       {  break; }
-
+       {  img.number2++;
+         continue;
        }
-
      }
      break;
     }
-
   }
-
   }
 
    if(img.number2>4)
-   { img.number2=0;
-   img.number1=0;
-
-
-
-      gpio_init(PTC14,GPO,0);    //蓝色 0
-          for(img.row=1;img.row<img.Row_Max;img.row++)
-          { if( img.right_flag[img.row]==3)
-          {
-            img.right_line=img.row;
-            break;                 }
-
+   {
+     img.number2=0;
+     img.number1=0;
+     gpio_init(PTC14,GPO,0);    //蓝色 0
+     for(img.row=1;img.row<img.Row_Max;img.row++)
+    {
+      if( img.right_flag[img.row]==3)
+        {
+          img.right_line=img.row;
+          break;
+        }
           }
-            for(img.row=img.right_line;img.row<30;img.row++)
-            {    if(img.right_flag[img.row]==3)
-            { img.R++;
-            }else
-            {break;}
 
+    for(img.row=img.right_line;img.row<30;img.row++)
+    {
+     if(img.right_flag[img.row]==3)
+      { img.R++;}
+     else {break;}
+      }
 
-            }
-             for(img.row=img.right_line;img.row<30;img.row++)
-             {
-             if(img.left_flag[img.row]==1)
-            {img.L++;}
-            else
-            {break;}
-             }
-
-
-         if((img.R-img.L)>6)
-         {
-
-           gpio_init(PTC15,GPO,0);       //绿色0
-            img.rotary=3;
-             distance=0;
-
+     for(img.row=img.right_line;img.row<30;img.row++)
+       {
+        if(img.left_flag[img.row]==1)
+        {img.L++;}
+        else {break;}
+        }
+    if((img.R-img.L)>6)
+    {
+      gpio_init(PTC15,GPO,0);       //绿色0
+      img.rotary=3;
+      distance=0;
          }
-
-
-
-
-    // }
 
    }
    break;
-  }
 
  }
-
 
 
   /**************************环岛入**********************/
@@ -491,61 +460,149 @@ uint8 Check_Margin(uint8 Row,uint8 Col){           //255白
        }else     */
 
 
-         if((img.rotary==3)&&(distance>3500))  //(3730)环岛在左(0在上)
+  //-------------------------------------------------------------------------//
+ //----------------------------------右环岛---------------------------------//
+  /*
+ if(img.rotary==0)
+ {
+    for(img.row=img.Row_Max-1;img.row>img.Row_Min;img.row--)
+ {
+  if((img.Right_Margin[img.row]==76)||(img.Right_Margin[img.row]==78))
+  {continue;}
+  else
+  {
+    for(i=img.row;i>img.row-8;i--)
+  {
+    for(j=78;j>img.Right_Margin[i];j--)
+  {
+     if(img.imgbuff[i][j]==0)
+     {
+       img.imgbuff[i][j]=140;
+       img.number3++;
+     }
+  }
+
+  }
+  if((img.number3<40)&&( img.number3!=0))
+  {
+
+  for(img.row=0;img.row<img.Row_Max;img.row++)
+  {
+    if((img.imgbuff[img.row][77]==140)&&(img.imgbuff[img.row][76]==140))
+    {
+
+     for(i=img.row;i>img.row-8;i--)
+     {
+       if(img.right_flag[img.row]==3)
+       {     continue; }
+        else if (img.left_flag[img.row]==1)
+       {  img.number4++;}
+       else
+       {  continue; }
+     }
+       break;
+    }
+
+  }
+  }
+
+   if(img.number4>4)
+   {
+     img.number3=0;
+     img.number4=0;
+     gpio_init(PTC15,GPO,0);    //绿色 0
+     for(img.row=1;img.row<img.Row_Max;img.row++)
+    {
+      if( img.left_flag[img.row]==1)
+        {
+          img.left_line=img.row;
+          break;
+        }
+          }
+
+    for(img.row=img.left_line;img.row<30;img.row++)
+    {
+     if(img.right_flag[img.row]==3)
+      { img.R++;}
+     else {break;}
+      }
+
+     for(img.row=img.left_line;img.row<30;img.row++)
        {
-           gpio_init(PTC14,GPO,1);    //蓝色 0
-           img.Error=-18;
-           distance=0;
-
-
-          /*
-         for(img.row=10;img.row<img.Row_Max;img.row++)
-         { if((img.left_flag[img.row]==1)&&(img.left_flag[img.row+1]!=1))
-             {
-               if(img.row>img.x1)
-               {     }else
-               {
-               img.x1=img.row+1;
-               }
-                img.y1=1;
-               for(img.row=40;img.row>img.x1;img.row--)
-               {
-                  if((img.Right_Margin[img.row]!=78)&&(img.Right_Margin[img.row-1]<img.Right_Margin[img.row]))
-                  {
-               img.x2=img.row+1;
-               img.y2=78;
-               break;
-                  }
-
-               }
-               img.k=(img.y2-img.y1)/(img.x2-img.x1);
-               img.b=img.y2-(img.k*img.x2);
-               break;
-              }
-
-         }
-         for(img.row=img.x1;img.row>img.Row_Min;img.row--)
-         {
-          img.Right_Margin[img.row]=1;
-           img.Left_Margin[img.row]=1;
-            img.Road_Middle[img.row]=1;
+        if(img.left_flag[img.row]==1)
+        {img.L++;}
+        else {break;}
+        }
+    if((img.L-img.R)>6)
+    {
+      gpio_init(PTC14,GPO,0);       //蓝色0
+      img.rotary=2;
+      distance=0;
          }
 
-         for(img.row=img.x2;img.row>img.x1;img.row--)
-         {
-         img.Right_Margin[img.row]=(int)((img.k*img.row)+img.b);
-         img.Road_Middle[img.row]=(uint8)((img.Right_Margin[img.row]+img.Left_Margin[img.row])/2);
-         img.Mid = img.Road_Middle[img.row];
-         }
-           */
+   }
+   break;
+  }
 
-       }
+ }
 
-   /**********************************************************/
+if((img.rotary==2)&&(distance>3500))  //(3730)环岛在左(0在上)
+  {
+    gpio_init(PTC15,GPO,1);    //绿色 0
+    img.Error=18;
+    distance=0;
+   }
 
 
 
   }
+ */
+   }
+ }
+
+
+ //---扫到左环岛后图像处理 ---//
+ /*
+  if(img.rotary==3)
+  {
+    for(img.row=img.Row_Max-2;img.row>img.Row_Min;img.row--)
+    {
+     if(img.Left_Margin[img.row]>img.Left_Margin[img.row+1])
+     {
+       img.x2=img.row;
+       img.y2=img.Right_Margin[img.row];
+     }
+    }
+    img.x1=img.x2-15;
+    if(img.x1<0)
+    {img.x1=1;}
+    img.y1=1;
+
+    img.k=(img.y2-img.y1)/(img.x2-img.x1);
+    img.b=img.y2-(img.k*img.x2);
+    for(img.row=img.x2;img.row>img.x1;img.row--)
+    {
+      img.Right_Margin[img.row]=(int)((img.k*img.row)+img.b);
+      img.Road_Middle[img.row]=(uint8)((img.Right_Margin[img.row]+img.Left_Margin[img.row])/2);
+    }
+
+
+  }
+         */
+
+
+  if((img.rotary==3)&&(distance>2500))  //(3730)环岛在左(0在上)
+  {
+    gpio_init(PTC14,GPO,1);    //蓝色 0
+    img.rotary=1;
+    img.Error=-18;
+    distance=0;
+   }
+
+
+  }
+
+
  /**
  * @brief   赛道数据滤波，最小二乘法
  *          a=( sum(x*y)- sum(x)*sum(y)/n )/ ( sum(x*x)- sum(x)*sum(x)/n )
@@ -591,19 +648,72 @@ void Calc_Track_Error(void){
       //  img.Error=(int)(LSM.a*25+LSM.b-40);
        // }else
         //{
-  if((img.rotary==3)&&(distance<1300))
+  img.r_lost=-1;
+  img.l_lost=-1;
+  if(img.rotary!=1)
   {
 
-  }else
+    for(img.row=img.Row_Max;img.row>img.Row_Min;img.row--)
+    {
+      if((img.Right_Margin[img.row]==76)||(img.Right_Margin[img.row]==78))
+      { img.right_line++;  }
+       else
+       {
+         if(abs(img.Right_Margin[img.row]-img.Right_Margin[img.row-1])>10)
+         {
+           img.r_lost++;
+         } else
+           img.r_lost--;
+
+       }
+      if((img.Left_Margin[img.row]==3)||(img.Left_Margin[img.row]==1))
+      {img.left_line++;}
+      else
+      {
+      if(abs(img.Left_Margin[img.row]-img.Left_Margin[img.row-1])>10)
+         {
+           img.l_lost++;
+         }
+      else
+        img.l_lost--;
+
+      }
+
+    }
+    if( (  ((img.left_line>32)&&(img.right_line>32))
+       ||((img.left_line>40)&&(img.right_line>20))
+       ||((img.left_line>20)&&(img.right_line>40))   )
+
+       && (abs(img.left_line-img.right_line)<19)
+       // &&((img.imgbuff[5][39]==200)||(img.imgbuff[5][39]==255)    )
+       //   &&((img.imgbuff[10][39]==200)||(img.imgbuff[10][39]==255) )
+
+       &&((img.r_lost>0)||(img.l_lost>0)||(img.r_lost==0)||(img.l_lost==0)))
+    {
+        //img.Error=img.last_error;
+      if(img.last_error==2)
+      {
+        img.Error=-20;}
+      else if(img.last_error==1){
+        img.Error=20;}
+    }
+    else
+    {
+    img.Error= img.Road_Middle[28] -39;
+    if(img.Error>0)
+    {img.last_error=1;   }
+    else if(img.Error<0)
+    {img.last_error=2;}
+
+
+    }
+
+  }
+  else if((img.rotary==1)&&(distance>2000))
   {
-    img.Error= img.Road_Middle[28] -39;     }
-        //n 6}
-
-          /*********************环岛*********************/
-
-
-
-
+    img.rotary=0;
+     gpio_init(PTC15,GPO,1);    //绿色 0
+  }
 }
 
 

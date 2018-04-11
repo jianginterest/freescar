@@ -38,6 +38,7 @@ struct IMG
    uint8 Left_Margin[70];
    uint8 Right_Margin[70];
    int16 Error;
+   int16 last_error;
    uint8 Count;
    uint8 Road_Middle[70];
    uint8 Effective_Row;
@@ -63,6 +64,9 @@ struct IMG
    uint8 number4;
    int16 L;
    int16 R;
+   int8 r_lost;
+   int8 l_lost;
+
 
 
 };
