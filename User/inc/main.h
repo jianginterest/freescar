@@ -7,10 +7,12 @@
  * @param  ½âÊÍÔÚcomputer.cÖĞ
  * @retval	None
  */
-#define CMD_IMG 1
+#define CMD_IMG 3
 
 
-extern int16 Num_Pluse;
+extern int32 Num_Pluse;
+extern int32 Num_Pluse1;
+extern int32 Num_Pluse2;
 extern int16 distance;
 void labview(void);
 

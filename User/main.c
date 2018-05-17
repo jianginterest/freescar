@@ -13,28 +13,30 @@ uint8_t cmdr[3] = {2,~CMD_IMG, CMD_IMG};
 void main(void)
 {
     all_init();
-   motor_duty(260,280);
+   //motor_duty(260,280);
     /*使用虚拟示波器时定义*/
     //temp[0]=0;
-    //nrf_tx_buff[0]=1;
+    nrf_tx_buff[0]=1;
     /*****************/
     //for(i=1;i<10;i++)
-    //nrf_tx_buff[i]=i;
+   // nrf_tx_buff[i]=i;
 
     while(1)
     {
+
+
       camera_get_img(); //摄像头获取图像
       img_extract((uint8*) img.imgbuff,(uint8*)img.img_bin_buff, CAMERA_H*CAMERA_W/8); //60*80
       //vcan_sendimg(img.img_bin_buff, sizeof(img.img_bin_buff));  //发送图像到上位机
-     Scan_Img_Array();
-     Calc_Track_Error();
-     key_image();
-     Steering_Engine_Control(img.Error);
+      Scan_Img_Array();
+      Calc_Track_Error();
+      key_image();
 
-     //Tracking();
-      // nrf_rx(nrf_rx_buff,5);
-        //nrf_measure_Angle();
-     // labview(); //虚拟示波器，看PID
+
+     // motor_duty(200,200);
+     // nrf_rx(nrf_rx_buff,5);
+     //nrf_measure_Angle();
+     //labview(); //虚拟示波器，看PID
 
     }
 }

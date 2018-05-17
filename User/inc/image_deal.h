@@ -15,6 +15,8 @@ void Calc_Track_Error(void);
 void LCD_image_display();
 void Tracking(void);
 
+uint8 Check_L(uint8 Row,uint8 Col);
+uint8 Check_R(uint8 Row,uint8 Col);
 
 
 struct IMG
@@ -67,12 +69,16 @@ struct IMG
    int8 r_lost;
    int8 l_lost;
 
+   uint16 r_sum;
+   uint16 l_sum;
 
+   uint8 road_wide[60];
+   uint8 rotary_in;
 
 };
 
 
-
+extern uint8 Min_Margin_standard[60];
 extern uint8 Turn_Direction;
 
 #endif

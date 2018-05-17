@@ -6,7 +6,8 @@ void motor_duty(int32_t MotorL,int32_t MotorR);
 void Control_Real_Wheel(void);
 void Motor_PID(void);
 void Motor_Differential(void);
-
+void GetMotorPulse(void);
+void motor_control(void);
 
 struct Motor_PID{
 	uint16_t P;

@@ -75,20 +75,43 @@ void uart5_Intertupt(void)
  * @param  	None
  * @retval	None
  */
-int16 Num_Pluse;
+int32 Num_Pluse,Num_Pluse2;
 int16 distance;
+uint8 M=0;
 void PIT0_IRQHandler(void)
 {
-    Num_Pluse = ftm_quad_get(FTM2);          //获取FTM 正交解码 的脉冲数(负数表示反方向)
-    ftm_quad_clean(FTM2);
-    if(img.rotary!=0)
+
+
+
+    //Steering_Engine_Control(img.Error);
+
+     if(M)
     {
-     distance+=abs(Num_Pluse);
+   // GetMotorPulse();
+   // motor_control();
+      M=0;
     }
-   // Motor_PID();
+     else M++;
+
     PIT_Flag_Clear(PIT0);       //清中断标志位
 }
 
+int32 Num_Pluse1;
+void PORTB_IRQHandler()
+{
+    uint8  n;    //引脚号
+    uint32 flag;
+
+    flag = PORTB_ISFR;
+    PORTB_ISFR  = ~0;
+
+     n = 8;
+    if(flag & (1 << n))                                 //PTB8触发中断
+    {
+       Num_Pluse1++;
+    }
+
+}
 /******************  摄像头采集图像使用的相关中断  ******************/
 
 /*!
@@ -161,6 +184,14 @@ void PORTE_IRQHandler()
     {
         nrf_handler();
     }
+   /*
+    n = 24;
+    if(flag & (1 << n))                                 //PTE5触发中断
+    {
+       Num_Pluse1++;
+    }
+     */
+
 }
 
 

@@ -31,6 +31,7 @@ void uart4_Intertupt(void);
 void uart5_Intertupt(void);
 
 void PORTA_IRQHandler(void);
+void PORTB_IRQHandler(void);
 void DMA0_IRQHandler(void);
 void PORTE_IRQHandler (void);
 void LPTMR_IRQHandler(void);
